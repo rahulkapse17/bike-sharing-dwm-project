@@ -1,0 +1,3 @@
+Algorithm,Frequent Itemsets,Execution Time (seconds)
+Apriori,126,0.010124683380126953
+FP-Growth,126,0.05681872367858887

@@ -1,0 +1,4 @@
+Algorithm,Number_of_Clusters,Silhouette_Score,Noise_Points
+K-Means,4,0.36249022835190275,0
+Hierarchical,4,0.33501667122882156,0
+DBSCAN,2,0.3234589571627437,66
