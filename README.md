@@ -2,6 +2,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
+[![Weka](https://img.shields.io/badge/Weka-Data%20Mining-3776AB)](https://www.cs.waikato.ac.nz/ml/weka/)
 [![License](https://img.shields.io/badge/License-Academic-green.svg)](#)
 
 An end-to-end Data Warehousing and Data Mining (DWM) project analysing the **UCI Bike Sharing Dataset** (Capital Bikeshare, Washington D.C., 2011–2012). The system investigates rental demand patterns across temporal and meteorological dimensions, implements a Star Schema data warehouse with OLAP query capabilities, classifies hourly demand, mines co-occurring patterns with association rules, and clusters daily rental profiles.
@@ -75,7 +76,7 @@ flowchart TD
 │   ├── daily_clustering_results.csv   # Cluster labels assigned to all 731 days
 │   ├── kmeans_cluster_summary.csv     # Daily profile characteristics per cluster
 │   └── clustering_comparison.csv      # Silhouette scores & noise count
-├── figures/                           # Visualizations & plots (1.jpeg - 15.jpeg)
+├── figures/                           # Visualizations, EDA charts & Weka screenshots
 ├── docs/                              # Project documentation
 │   ├── TEAM_10 report.pdf             # Comprehensive 18-page formal academic report
 │   └── problem statement.png          # Course problem specification sheet
@@ -94,10 +95,26 @@ flowchart TD
 * Observed dual-peak commuter usage at **08:00** and **17:00–18:00** on working days, compared to a single broad afternoon peak on weekends/holidays.
 * Discovered strong collinearity between ambient temperature (`temp`) and feeling temperature (`atemp`) with $r = 0.9877$.
 
+#### 📊 Hourly & Commute Patterns
+<p align="center">
+  <img src="figures/12.jpeg" alt="Average Bike Rentals by Hour" width="49%">
+  <img src="figures/13.jpeg" alt="Hourly Rentals: Working vs Non-working Days" width="49%">
+</p>
+
+#### 📊 Environmental Factors & Correlation Matrix
+<p align="center">
+  <img src="figures/14.jpeg" alt="Average Rentals by Season & Weather" width="49%">
+  <img src="figures/15.jpeg" alt="Correlation Matrix Heatmap" width="49%">
+</p>
+
+---
+
 ### 2. Data Transformation & Reduction
 * **Normalization:** Computed both **Min-Max** $[0, 1]$ and **Z-Score** $(\mu=0, \sigma=1)$ for continuous weather attributes (`temp`, `atemp`, `hum`, `windspeed`).
 * **Feature Selection:** Used `SelectKBest` ($F$-regression) to select top 5 features: `season`, `hr`, `temp`, `atemp`, and `hum`.
 * **PCA:** Retained 95% total explained variance, reducing the feature space to 8 principal components.
+
+---
 
 ### 3. Data Warehouse & OLAP Operations
 Designed and populated a **Star Schema** in SQLite (`bike_sharing_warehouse.db`):
@@ -108,6 +125,8 @@ Designed and populated a **Star Schema** in SQLite (`bike_sharing_warehouse.db`)
   * **Drill-down:** Granular month $\times$ hour rental patterns (288 groups).
   * **Slice:** Spring rentals broken down into casual (60,622) and registered (410,726).
   * **Dice:** Sub-cube filtered across Seasons 1 & 2, peak working hours (08:00–17:00), and Clear/Mist weather.
+
+---
 
 ### 4. Demand Classification
 Target demand was split into balanced tiers using the 33rd and 66th percentiles:
@@ -123,10 +142,14 @@ Trained models on a chronological 80/20 train/test split:
 | **Decision Tree (depth=8)** | 61.05% | 0.7333 | 0.6672 | 0.6343 |
 | **Rule-Based Tree (depth=3)** | 48.76% | 0.7084 | 0.5206 | 0.4802 |
 
+---
+
 ### 5. Association Rule Mining
 Converted transactions into itemsets combining season, weather, discretized time periods, and demand levels. Evaluated with $\text{min\_support} = 0.03$ and $\text{min\_confidence} = 0.5$:
 * Both **Apriori** and **FP-Growth** mined **126 frequent itemsets** and **89 association rules**.
 * **Top Rule:** $\text{Season 3 (Fall)} \land \text{Evening} \implies \text{High Demand}$ ($\text{Confidence} = 92.1\%$, $\text{Lift} = 2.71$).
+
+---
 
 ### 6. Usage Segmentation (Clustering)
 Standardized 731 daily 24-hour demand profiles:
@@ -137,11 +160,30 @@ Standardized 731 daily 24-hour demand profiles:
 | **Hierarchical (Ward)** | 4 | 0.3350 | 0 | Similar grouping to K-Means |
 | **DBSCAN ($\epsilon=2.5$)** | 2 | 0.3235 | 66 | Detected 66 anomalous/weather-disrupted days |
 
+#### 📊 2D PCA Cluster Segmentation (K-Means)
+<p align="center">
+  <img src="figures/11.jpeg" alt="K-Means Clustering of Daily Bike Usage Profiles" width="75%">
+</p>
+
 **K-Means Profile Segments:**
 * **Cluster 0 (135 days):** High-demand peak days (Avg 6,973 rentals/day; mostly Fall/Clear).
 * **Cluster 1 (193 days):** Low-demand days (Avg 2,022 rentals/day; mostly Spring/Winter).
 * **Cluster 2 (144 days):** Above-average days (Avg 5,558 rentals/day; midday weekend/holiday peaks).
 * **Cluster 3 (259 days):** Moderate-demand days (Avg 4,481 rentals/day; typical working days).
+
+---
+
+### 7. Weka Workbench Analysis & Verification
+In addition to Python scikit-learn models, experiments, attribute discretizations, and clustering profiles were analyzed in the **Weka Data Mining Tool**:
+
+<p align="center">
+  <img src="figures/1.jpeg" alt="Weka SimpleKMeans Clusterer Visualization" width="49%">
+  <img src="figures/2.jpeg" alt="Weka Target Demand Discretization" width="49%">
+</p>
+<p align="center">
+  <img src="figures/3.jpeg" alt="Weka Nominal Seasonal Distribution" width="49%">
+  <img src="figures/4.jpeg" alt="Weka Hour Binning" width="49%">
+</p>
 
 ---
 
@@ -153,7 +195,7 @@ Standardized 731 daily 24-hour demand profiles:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/<your-username>/bike-sharing-dwm-project.git
+git clone https://github.com/rahulkapse17/bike-sharing-dwm-project.git
 cd bike-sharing-dwm-project
 ```
 
